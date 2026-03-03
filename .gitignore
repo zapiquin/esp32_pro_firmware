@@ -1,0 +1,8 @@
+# .gitignore
+build/
+dependencies.lock
+.vscode/.openocd
+.vscode/esp_idf_version
+sdkconfig
+venv/
+.venv/
