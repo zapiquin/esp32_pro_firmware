@@ -1,0 +1,34 @@
+{
+    "name": "ESP32-S3 Professional Env",
+    "image": "espressif/idf:release-v5.2",
+    
+    // Privilegios para que el contenedor pueda flashear por USB
+    "runArgs": [
+        "--privileged",
+        "-v", "/dev:/dev"
+    ],
+    
+    "customizations": {
+        "vscode": {
+            // Extensiones que se instalarán SOLO dentro del contenedor
+            "extensions": [
+                "ms-vscode.cpptools",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "xaver.clang-format",
+                "twxs.cmake"
+            ],
+            // Configuraciones automáticas del editor
+            "settings": {
+                "editor.formatOnSave": true,
+                "C_Cpp.intelliSenseEngine": "disabled", // Apagamos el de Microsoft para usar Clangd (mucho mejor)
+                "clangd.arguments": [
+                    "--background-index",
+                    "--compile-commands-dir=${workspaceFolder}/build",
+                    "--header-insertion=iwyu"
+                ],
+                "files.insertFinalNewline": true,
+                "files.trimTrailingWhitespace": true
+            }
+        }
+    }
+}
