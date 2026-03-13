@@ -1,10 +1,11 @@
 #include <iostream>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 // Clang-tidy forzará que esto sea PascalCase
 class MiControlador {
-public:
+   public:
     void saludar() {
         std::cout << "¡Hola desde C++ en ESP32-S3 profesional!" << std::endl;
     }
