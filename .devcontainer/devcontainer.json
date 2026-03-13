@@ -1,33 +1,47 @@
 {
     "name": "ESP32-S3 Professional Env",
+    // Official Espressif Docker image containing the full ESP-IDF framework
     "image": "espressif/idf:release-v5.2",
-    
-    // Privilegios para que el contenedor pueda flashear por USB
+    // Privileges to allow the container to access host hardware (USB ports for flashing)
     "runArgs": [
         "--privileged",
-        "-v", "/dev:/dev"
+        "-v",
+        "/dev:/dev"
     ],
-    
+    "postCreateCommand": "echo 'source /opt/esp/idf/export.sh' >> ~/.bashrc",
     "customizations": {
         "vscode": {
-            // Extensiones que se instalarán SOLO dentro del contenedor
+            // VS Code extensions that will be installed ONLY inside this container
             "extensions": [
-                "ms-vscode.cpptools",
-                "llvm-vs-code-extensions.vscode-clangd",
-                "xaver.clang-format",
-                "twxs.cmake"
+                "ms-vscode.cpptools", // Core C/C++ debugging tools
+                "llvm-vs-code-extensions.vscode-clangd", // Advanced IntelliSense and Formatter
+                "twxs.cmake" // CMake syntax highlighting
             ],
-            // Configuraciones automáticas del editor
+            // Workspace-specific settings applied automatically
             "settings": {
+                // Enable auto-formatting every time you save a file (Ctrl + S)
                 "editor.formatOnSave": true,
-                "C_Cpp.intelliSenseEngine": "disabled", // Apagamos el de Microsoft para usar Clangd (mucho mejor)
+                // Disable Microsoft's default IntelliSense to prevent conflicts with Clangd
+                "C_Cpp.intelliSenseEngine": "disabled",
+                // Clangd configuration to parse ESP-IDF components correctly
                 "clangd.arguments": [
                     "--background-index",
                     "--compile-commands-dir=${workspaceFolder}/build",
                     "--header-insertion=iwyu"
                 ],
+                // Clean code practices: ensure trailing newline and remove extra whitespaces
                 "files.insertFinalNewline": true,
-                "files.trimTrailingWhitespace": true
+                "files.trimTrailingWhitespace": true,
+                // Force VS Code to use Clangd as the default formatter for C and C++ files
+                // This ensures it reads your .clang-format file perfectly
+                "[cpp]": {
+                    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+                    "editor.formatOnSave": true
+                },
+                "[c]": {
+                    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+                    "editor.formatOnSave": true
+                }
             }
         }
     }
