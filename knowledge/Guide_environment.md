@@ -125,3 +125,72 @@ Edit `.devcontainer/devcontainer.json` with the following content:
 - Installs C/C++ extensions inside the container.
 - Uses `clangd` as the main analysis and autocomplete engine.
 - Automatically formats code on save using `clang-format`.
+- Espressif documents that the espressif/idf image contains ESP-IDF, the required build tools, and an entrypoint that configures the environment for immediate use. Tags such as release-vX.Y track the corresponding release branch.
+
+## 6. Opening the Project in the Container
+1. Open VS Code in the project folder (`esp32_pro_firmware`).
+2. Press `F1` and select **Remote-Containers: Open Folder in Container**.
+3. Wait for the image to be downloaded and the environment start.
+From this point on, the integrated terminal in VS Code will be running **inside the container**.
+
+## 7. Creating the Base ESP-IDF Project
+Inside the container terminal (in VS Code), run the following commands to create a new ESP-IDF project skeleton :
+```bash
+idf.py create-project app
+```
+> **NOTE:** The `idf.py` create-project <project_name> command is documented by Espressif as the standard way to start a new ESP-IDF project.
+
+Then move the generated files to the root of the repository:
+```bash
+mv app/* .
+rm -rf app
+```
+This leaves the ESP-IDF project directly at the repository root.
+
+## 8. Converting the project to C++
+Rename the main source file from `app.c` to `app.cpp` to enable C++ compilation:
+```bash
+mv main/app.c main/main.cpp
+```
+Then, edit `main/CMakeLists.txt` so it points to the C++ source file:
+```cmake
+idf_component_register(SRCS "app.cpp"
+                    INCLUDE_DIRS ".")
+```
+ESP-IDF officially supports C++ application development. Current documentation states that ESP-IDF compiles C++ code using GNU++23 by default, so no additional configuration is needed to enable C++17 or later features.
+
+## 9. Code Style and Formatting Rules
+**`clang-format`**
+Create a `.clang-format` file in the repository root with the following content:
+```yaml
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+SortIncludes: true
+AllowShortFunctionsOnASingleLine: Empty
+PointerAlignment: Left
+```
+
+**`.clang-tidy`**
+Create a `.clang-tidy` file in the repository root with the following content:
+```yaml
+Checks: '-*,readability-identifier-naming,modernize-*,bugprone-*'
+CheckOptions:
+  - key:             readability-identifier-naming.VariableCase
+    value:           camelBack
+  - key:             readability-identifier-naming.ClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.StructCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.MacroDefinitionCase
+    value:           UPPER_CASE
+```
+This gives you a solid baseline for naming consistency and static analysis.
+
+## 10. Firmware Dependencies (C++)
+For firmware libraries, the recommended approach is to use the **ESP Component Registry**
+Example:
+```bash
+idf.py add-dependency "espressif/json_parser^1.0.0"
+```
+Espressif documents that `idf.py add-dependency` adds the dependency to the project manifest for the component, typically `main/idf_component.yml`, and that dependency resolution is handled automatically during CMake configuration/build.
