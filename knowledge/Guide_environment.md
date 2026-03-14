@@ -87,6 +87,7 @@ Edit `.devcontainer/devcontainer.json` with the following content:
             "extensions": [
                 "ms-vscode.cpptools", // Core C/C++ debugging tools
                 "llvm-vs-code-extensions.vscode-clangd", // Advanced IntelliSense and Formatter
+                "twxs.cmake", // CMake syntax highlighting
                 "twxs.cmake" // CMake syntax highlighting
             ],
             // Workspace-specific settings applied automatically
@@ -124,7 +125,7 @@ Edit `.devcontainer/devcontainer.json` with the following content:
 - Grants access to USB/serial devices so the board can be flashed.
 - Installs C/C++ extensions inside the container.
 - Uses `clangd` as the main analysis and autocomplete engine.
-- Automatically formats code on save using `clang-format`.
+- Automatically formats code on save using `clang-format`. First time, VS Code will ask for install the server (I couldn't be able to manage it automatically in dev container), just clic on ***install***.
 - Espressif documents that the espressif/idf image contains ESP-IDF, the required build tools, and an entrypoint that configures the environment for immediate use. Tags such as release-vX.Y track the corresponding release branch.
 
 ## 6. Opening the Project in the Container
@@ -193,4 +194,74 @@ Example:
 ```bash
 idf.py add-dependency "espressif/json_parser^1.0.0"
 ```
-Espressif documents that `idf.py add-dependency` adds the dependency to the project manifest for the component, typically `main/idf_component.yml`, and that dependency resolution is handled automatically during CMake configuration/build.
+Espressif documents that `idf.py add-dependency` adds the dependency to the project manifest for the component, located in `main/idf_component.yml`, and that dependency resolution is handled automatically during CMake configuration/build.
+
+ESP Component Registry is an official store that can be found in [https://components.espressif.com/](https://components.espressif.com/).
+
+## 11. Auxiliary Host-Side Python Tools
+If you want host-side scripts (for example serial communication tools, test helpers, or data generators), create a separate subfolder:
+```bash
+mkdir herramientas_pc
+cd herramientas_pc
+poetry init
+poetry add pyserial
+```
+The recommended `poetry init` flow when Poetry asks is:
+1. Package name &rarr; **Enter**.
+2. Version &rarr; **Enter**.
+3. Description &rarr; **Enter**.
+4. Author &rarr; **Enter**.
+5. License &rarr; **Enter** or **MIT**.
+6. Compatible Python versions &rarr; **Enter**.
+7. Main dependencies interactively &rarr; **no**.
+8. Development dependencies interactively &rarr; **no**.
+9. Confirm generation &rarr; **enter**.
+
+## 12. Minimal C++ Example
+Edit `main/main.cpp` with the following content:
+```cpp
+#include <iostream>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+// Clang-tidy forzará que esto sea PascalCase
+class MiControlador {
+   public:
+    void saludar() {
+        std::cout << "¡Hola desde C++ en ESP32-S3 profesional!" << std::endl;
+    }
+};
+
+extern "C" void app_main() {
+    MiControlador controlador;
+
+    while (true) {
+        controlador.saludar();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+```
+ESP-IDF officially supports C++ features including language runtime support and standard library facilities, with some documented limitations. (See [docs.espressif.com](docs.espressif.com)).
+
+## 13. Selecting the Target, Building and Flashing
+Connect the board via USB and identify the serial port (for example /dev/ttyACM0).
+### Select target
+```bash
+idf.py set-target esp32s3
+```
+Espressif documents that `idf.py set-target <target>` selects the target chip and that changing the target clears the build directory and regenerates configuration files.
+### Build
+```bash
+idf.py build
+```
+### Flash and open the serial monitor
+```bash
+idf.py -p /dev/ttyACM0 flash monitor
+```
+If `monitor` is removed, it will only flash without opening the serial monitor.
+
+If the monitor is used, to exit the monitor, press `Ctrl + ]`.
+
+> **NOTE:** Espressif’s documentation also notes that idf.py flash automatically builds the project if needed, so running idf.py build first is optional.
+
