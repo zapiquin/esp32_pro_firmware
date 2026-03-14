@@ -1,2 +1,2 @@
-idf_component_register(SRCS "app.cpp"
-                    INCLUDE_DIRS ".")
+idf_component_register(SRCS "main.cpp"
+                       REQUIRES freertos)

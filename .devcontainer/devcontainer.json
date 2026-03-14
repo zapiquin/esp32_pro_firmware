@@ -15,6 +15,7 @@
             "extensions": [
                 "ms-vscode.cpptools", // Core C/C++ debugging tools
                 "llvm-vs-code-extensions.vscode-clangd", // Advanced IntelliSense and Formatter
+                "twxs.cmake", // CMake syntax highlighting
                 "twxs.cmake" // CMake syntax highlighting
             ],
             // Workspace-specific settings applied automatically
