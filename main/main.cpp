@@ -7,7 +7,8 @@
 class MiControlador {
    public:
     void saludar() {
-        std::cout << "¡Hola desde C++ en ESP32-S3 profesional!" << std::endl;
+        std::cout << "¡♡ Te quiero infinito mi amor ♡!" << std::endl;
+        //printf("¡♡ Te quiero infinito mi amor ♡!");
     }
 };
 
